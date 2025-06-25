@@ -2,6 +2,10 @@
 - name: Export Config from Controller
   hosts: localhost
   gather_facts: false
+  environment:
+    CONTROLLER_HOST: "{{ controller }}"
+    CONTROLLER_USERNAME: '{{ user }}'
+    CONTROLLER_PASSWORD: '{{ password }}'
       
   tasks:
     - name: Export all assets from Controller
