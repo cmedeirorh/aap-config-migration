@@ -1,0 +1,20 @@
+---
+- name: Export Config from Controller
+  hosts: localhost
+  gather_facts: false
+  environment:
+    CONTROLLER_HOST: "{{ controller_url }}"
+    CONTROLLER_USERNAME: '{{ aap_user }}'
+    CONTROLLER_PASSWORD: '{{ aap_password }}'
+    CONTROLLER_VERIFY_SSL: false
+      
+  tasks:
+    - name: Export all assets from Controller
+      ansible.controller.export:
+        all: True
+      register: export
+
+    - name: Print Export
+      ansible.builtin.copy:
+        dest: /tmp/export.json
+        content: '{{ export }}'
