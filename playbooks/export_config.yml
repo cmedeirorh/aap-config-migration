@@ -2,18 +2,17 @@
 - name: Export Config from Controller
   hosts: localhost
   gather_facts: false
-  environment:
-    CONTROLLER_HOST: "{{ controller }}"
-    CONTROLLER_USERNAME: '{{ user }}'
-    CONTROLLER_PASSWORD: '{{ password }}'
+  vars:
+    controller_host: '{{ controller }}'
+    controller_oauthtoken: '{{ token }}'
       
   tasks:
     - name: Export all assets from Controller
       ansible.controller.export:
-        all: True
+        inventory: 'all'
+        #all: True
       register: export
 
     - name: Print Export
-      ansible.builtin.copy:
-        dest: /tmp/export.json
-        content: '{{ export }}'
+      ansible.builtin.debug:
+        var: export
