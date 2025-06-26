@@ -7,10 +7,9 @@
     CONTROLLER_TOKEN: '{{ token }}'
       
   tasks:
-    - name: Export all assets from Controller
+    - name: Export 
       ansible.controller.export:
-        inventory: 'all'
-        #all: True
+        users: 'all'
       register: export
 
     - name: Print Export
