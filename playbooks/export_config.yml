@@ -2,9 +2,9 @@
 - name: Export Config from Controller
   hosts: localhost
   gather_facts: false
-  vars:
-    controller_host: '{{ controller }}'
-    controller_oauthtoken: '{{ token }}'
+  environment:
+    CONTROLLER_HOST: "{{ controller }}"
+    CONTROLLER_TOKEN: '{{ token }}'
       
   tasks:
     - name: Export all assets from Controller
