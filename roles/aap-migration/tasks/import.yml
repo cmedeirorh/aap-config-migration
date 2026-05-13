@@ -1,0 +1,35 @@
+---
+- name: Verify export file exists
+  ansible.builtin.stat:
+    path: "{{ aap_export_file_path }}"
+  register: export_file
+  delegate_to: localhost
+
+- name: Fail if export file is missing
+  ansible.builtin.fail:
+    msg: "Export file {{ aap_export_file_path }} not found. Cannot proceed with import."
+  when: not export_file.stat.exists
+
+- name: Read exported data from file
+  ansible.builtin.slurp:
+    src: "{{ aap_export_file_path }}"
+  register: slurp_export_file
+  delegate_to: localhost
+
+- name: Set exported data as a fact
+  ansible.builtin.set_fact:
+    import_payload: "{{ slurp_export_file['content'] | b64decode | from_json }}"
+
+- name: Import configuration to Destination AAP
+  ansible.controller.import:
+    controller_host: "{{ aap_host }}"
+    controller_username: "{{ aap_username }}"
+    controller_password: "{{ aap_password }}"
+    validate_certs: "{{ aap_validate_certs }}"
+    assets: "{{ import_payload }}"
+  delegate_to: localhost
+  run_once: true
+
+- name: Import completed
+  ansible.builtin.debug:
+    msg: "Successfully imported AAP configuration from {{ aap_export_file_path }} to {{ aap_host }}."
