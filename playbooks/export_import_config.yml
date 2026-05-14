@@ -7,13 +7,13 @@
   tasks:
     - name: Step 1 - Export from AAP 2.4
       ansible.builtin.include_role:
-        name: aap_migration
+        name: roles/aap_migration
       vars:
         aap_action: 'export'
         aap_host: "https://aap24.example.com"
         aap_username: "admin"
         aap_password: "your_aap24_password"
-        aap_export_file_path: "./aap_backup.json"
+        aap_export_file_path: "/tmp/aap_export.json"
 
     - name: Step 2 - Import to AAP 2.6
       ansible.builtin.include_role:
@@ -23,4 +23,4 @@
         aap_host: "https://aap26.example.com"
         aap_username: "admin"
         aap_password: "your_aap26_password"
-        aap_export_file_path: "./aap_backup.json"
+        aap_export_file_path: "/tmp/aap_export.json"
