@@ -50,7 +50,7 @@ for item in "${IMPORT_ORDER[@]}"; do
         echo "----------------------------------------" >> "${LOG_FILE}"
         
         # Execute the import and append both stdout and stderr to the log file
-        awx import \
+        AWXKIT_API_BASE_PATH='/api/controller/'; awx import \
             --conf.host "${AWX_HOST}" \
             --conf.user "${AWX_USER}" \
             --conf.password "${AWX_PASS}" \
