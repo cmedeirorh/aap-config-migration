@@ -6,17 +6,23 @@
     controller_password: "{{ aap_password }}"
     validate_certs: "{{ aap_validate_certs }}"
     all: "{{ aap_export_all }}"
-  register: aap_exported_data
+  register: exported_assets
   delegate_to: localhost
   run_once: true
 
-- name: Save exported data to file
+- name: "Ensure export directory exists"
+  ansible.builtin.file:
+    path: "{{ export_dir }}"
+    state: directory
+    mode: '0755'
+        
+- name: "Save each asset type to a separate file"
   ansible.builtin.copy:
-    content: "{{ aap_exported_data | to_nice_json }}"
-    dest: "{{ aap_export_file_path }}"
-    mode: '0600'
-  delegate_to: localhost
-  run_once: true
+    content: "{{ item.value | to_nice_json }}"
+    dest: "{{ export_dir }}/{{ item.key }}.json"
+  loop: "{{ exported_assets | dict2items | rejectattr('key', 'in', ['changed', 'failed']) | list }}"
+  loop_control:
+    label: "{{ item.key }}"
 
 - name: Export completed
   ansible.builtin.debug:
