@@ -1,29 +1,42 @@
 ---
-- name: Export ALL configuration from Source AAP (2.4 or later)
+# roles/aap_migrate/tasks/main.yml
+
+- name: "AAP Source | Export SELECTIVE configuration assets"
   ansible.controller.export:
-    controller_host: "{{ aap_host }}"
-    controller_username: "{{ aap_username }}"
-    controller_password: "{{ aap_password }}"
-    validate_certs: "{{ aap_validate_certs }}"
-    all: "{{ aap_export_all }}"
-  register: exported_assets
+    controller_host: "{{ aap_migrate_source_host }}"
+    controller_username: "{{ aap_migrate_source_username }}"
+    controller_password: "{{ aap_migrate_source_password }}"
+    validate_certs: "{{ aap_migrate_validate_certs }}"
+  # Inject the asset selection dictionary directly into the module
+  args: "{{ aap_migrate_assets }}"
+  register: _exported_assets
+
+- name: "Local | Ensure export directory exists"
+  ansible.builtin.file:
+    path: "{{ aap_migrate_export_dir }}"
+    state: directory
+    mode: '0755'
   delegate_to: localhost
   run_once: true
 
-- name: "Ensure export directory exists"
-  ansible.builtin.file:
-    path: "{{ export_dir }}"
-    state: directory
-    mode: '0755'
-        
-- name: "Save each asset type to a separate file"
+- name: "Local | Save each selected asset type to a separate file"
   ansible.builtin.copy:
     content: "{{ item.value | to_nice_json }}"
-    dest: "{{ export_dir }}/{{ item.key }}.json"
-  loop: "{{ exported_assets | dict2items | rejectattr('key', 'in', ['changed', 'failed']) | list }}"
+    dest: "{{ aap_migrate_export_dir }}/{{ item.key }}.json"
+  loop: "{{ _exported_assets | dict2items | rejectattr('key', 'in', ['changed', 'failed']) | list }}"
   loop_control:
     label: "{{ item.key }}"
+  delegate_to: localhost
+  run_once: true
 
-- name: Export completed
-  ansible.builtin.debug:
-    msg: "Successfully exported AAP configuration to {{ aap_export_file_path }}."
+- name: "AAP Dest | Clean up registered variable for import"
+  ansible.builtin.set_fact:
+    _import_payload: "{{ _exported_assets | dict2items | rejectattr('key', 'in', ['changed', 'failed']) | list | items2dict }}"
+
+- name: "AAP Dest | Import SELECTIVE configuration assets"
+  ansible.controller.import:
+    controller_host: "{{ aap_migrate_dest_host }}"
+    controller_username: "{{ aap_migrate_dest_username }}"
+    controller_password: "{{ aap_migrate_dest_password }}"
+    validate_certs: "{{ aap_migrate_validate_certs }}"
+    assets: "{{ _import_payload }}"
