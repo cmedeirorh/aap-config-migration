@@ -9,29 +9,39 @@
   delegate_to: localhost
   run_once: true
 
-- name: "AAP Dest | Import configuration assets individually"
+- name: "Local | Initialize empty import payload"
+  ansible.builtin.set_fact:
+    _import_payload: {}
+
+- name: "Local | Rebuild single import payload dynamically from files"
+  ansible.builtin.set_fact:
+    # This rebuilds the master dictionary. It uses the filename (e.g. 'users') as the key, 
+    # and the file's JSON content as the value.
+    _import_payload: >-
+      {{
+        _import_payload | combine({
+          item.path | basename | regex_replace('\.json$', ''): lookup('file', item.path) | from_json
+        })
+      }}
+  loop: "{{ _export_files.files }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
+  no_log: true 
+
+- name: "AAP Dest | Import ALL configuration assets globally"
   ansible.controller.import:
     controller_host: "{{ aap_migration_dest_host }}"
     controller_username: "{{ aap_migration_dest_username }}"
     controller_password: "{{ aap_migration_dest_password }}"
     validate_certs: "{{ aap_migration_validate_certs }}"
-    # Construct a dictionary on the fly containing just the current asset type
-    assets: "{{ { item.path | basename | regex_replace('\\.json$', '') : lookup('file', item.path) | from_json } }}"
-  loop: "{{ _export_files.files }}"
-  loop_control:
-    label: "{{ item.path | basename }}"
-  # Continue execution even if importing a specific asset type fails
+    # Send the combined payload so the module can resolve dependencies automatically
+    assets: "{{ _import_payload }}"
   ignore_errors: true
-  register: _import_results
+  register: _import_result
 
-- name: "AAP Dest | Report import errors per asset type"
+- name: "AAP Dest | Report import errors"
   ansible.builtin.debug:
     msg: 
-      - "WARNING: Failed to import {{ item.item.path | basename }}"
-      - "Error details: {{ item.msg | default('Unknown error occurred. Check AAP API logs.') }}"
-  # Loop through the results of the previous task
-  loop: "{{ _import_results.results }}"
-  loop_control:
-    label: "{{ item.item.path | basename }}"
-  # Only trigger the debug message if this specific loop iteration failed
-  when: item.failed | default(false)
+      - "WARNING: The import task encountered an error."
+      - "Error details: {{ _import_result.msg | default('Unknown error occurred. Check AAP API logs.') }}"
+  when: _import_result.failed is defined and _import_result.failed
