@@ -1,34 +1,36 @@
 ---
+# roles/aap_migration/defaults/main.yml
+
 # ---------------------------------------------------------
 # Action Control ('all', 'export', or 'import')
 # ---------------------------------------------------------
-aap_migrate_action: 'all'
+aap_migration_action: 'all'
 
 # ---------------------------------------------------------
 # Source AAP Details (Used during Export)
 # ---------------------------------------------------------
-aap_migrate_source_host: "https://aap24.yourdomain.com"
-aap_migrate_source_username: "admin"
-aap_migrate_source_password: "YourAAP24Password"
+aap_migration_source_host: "https://aap24.yourdomain.com"
+aap_migration_source_username: "admin"
+aap_migration_source_password: "YourAAP24Password"
 
 # ---------------------------------------------------------
 # Destination AAP Details (Used during Import)
 # ---------------------------------------------------------
-aap_migrate_dest_host: "https://aap26.yourdomain.com"
-aap_migrate_dest_username: "admin"
-aap_migrate_dest_password: "YourAAP26Password"
+aap_migration_dest_host: "https://aap26.yourdomain.com"
+aap_migration_dest_username: "admin"
+aap_migration_dest_password: "YourAAP26Password"
 
 # ---------------------------------------------------------
 # General Settings
 # ---------------------------------------------------------
-aap_migrate_validate_certs: false
-aap_migrate_export_dir: "./aap_exports"
+aap_migration_validate_certs: false
+aap_migration_export_dir: "./aap_exports"
 
 # ---------------------------------------------------------
 # Asset Selection
 # ---------------------------------------------------------
-aap_migrate_assets:
+aap_migration_assets:
   projects: 'all'
-  job_templates: 'all'
+  job_templates:
+    - "Deploy Web Application"
   users: 'all'
-  
