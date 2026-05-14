@@ -1,35 +1,35 @@
 ---
-- name: Verify export file exists
-  ansible.builtin.stat:
-    path: "{{ aap_export_file_path }}"
-  register: export_file
-  delegate_to: localhost
+# roles/aap_migration/tasks/import.yml
 
-- name: Fail if export file is missing
-  ansible.builtin.fail:
-    msg: "Export file {{ aap_export_file_path }} not found. Cannot proceed with import."
-  when: not export_file.stat.exists
-
-- name: Read exported data from file
-  ansible.builtin.slurp:
-    src: "{{ aap_export_file_path }}"
-  register: slurp_export_file
-  delegate_to: localhost
-
-- name: Set exported data as a fact
-  ansible.builtin.set_fact:
-    import_payload: "{{ slurp_export_file['content'] | b64decode | from_json }}"
-
-- name: Import configuration to Destination AAP
-  ansible.controller.import:
-    controller_host: "{{ aap_host }}"
-    controller_username: "{{ aap_username }}"
-    controller_password: "{{ aap_password }}"
-    validate_certs: "{{ aap_validate_certs }}"
-    assets: "{{ import_payload }}"
+- name: "Local | Find exported asset files"
+  ansible.builtin.find:
+    paths: "{{ aap_migration_export_dir }}"
+    patterns: "*.json"
+  register: _export_files
   delegate_to: localhost
   run_once: true
 
-- name: Import completed
-  ansible.builtin.debug:
-    msg: "Successfully imported AAP configuration from {{ aap_export_file_path }} to {{ aap_host }}."
+- name: "Local | Initialize empty import payload"
+  ansible.builtin.set_fact:
+    _import_payload: {}
+
+- name: "Local | Build import payload dynamically from files"
+  ansible.builtin.set_fact:
+    _import_payload: >-
+      {{
+        _import_payload | combine({
+          item.path | basename | regex_replace('\.json$', ''): lookup('file', item.path) | from_json
+        })
+      }}
+  loop: "{{ _export_files.files }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
+  no_log: true 
+
+- name: "AAP Dest | Import configuration assets"
+  ansible.controller.import:
+    controller_host: "{{ aap_migration_dest_host }}"
+    controller_username: "{{ aap_migration_dest_username }}"
+    controller_password: "{{ aap_migration_dest_password }}"
+    validate_certs: "{{ aap_migration_validate_certs }}"
+    assets: "{{ _import_payload }}"
