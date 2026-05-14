@@ -1,0 +1,23 @@
+---
+- name: Export ALL configuration from Source AAP (2.4 or later)
+  ansible.controller.export:
+    controller_host: "{{ aap_host }}"
+    controller_username: "{{ aap_username }}"
+    controller_password: "{{ aap_password }}"
+    validate_certs: "{{ aap_validate_certs }}"
+    all: "{{ aap_export_all }}"
+  register: aap_exported_data
+  delegate_to: localhost
+  run_once: true
+
+- name: Save exported data to file
+  ansible.builtin.copy:
+    content: "{{ aap_exported_data | to_nice_json }}"
+    dest: "{{ aap_export_file_path }}"
+    mode: '0600'
+  delegate_to: localhost
+  run_once: true
+
+- name: Export completed
+  ansible.builtin.debug:
+    msg: "Successfully exported AAP configuration to {{ aap_export_file_path }}."

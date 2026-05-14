@@ -1,0 +1,15 @@
+---
+# Action to perform: 'export' or 'import'
+aap_action: 'export'
+
+# The path to store or read the exported JSON/YAML data
+aap_export_file_path: "/tmp/aap_config_export.json"
+
+# AAP Connection Variables (Override these at playbook runtime)
+aap_host: ""
+aap_username: ""
+aap_password: ""
+aap_validate_certs: false
+
+# Export Settings
+aap_export_all: true

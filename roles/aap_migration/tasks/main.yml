@@ -1,0 +1,9 @@
+---
+- name: Validate aap_action
+  ansible.builtin.assert:
+    that:
+      - aap_action in ['export', 'import']
+    fail_msg: "The variable 'aap_action' must be either 'export' or 'import'."
+
+- name: Include the requested action
+  ansible.builtin.include_tasks: "{{ aap_action }}.yml"
