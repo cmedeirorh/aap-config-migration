@@ -13,7 +13,7 @@
         aap_host: "https://aap24.example.com"
         aap_username: "admin"
         aap_password: "your_aap24_password"
-        aap_export_file_path: "/tmp/aap_export.json"
+        export_dir: "./aap_exports"
 
     - name: Step 2 - Import to AAP 2.6
       ansible.builtin.include_role:
