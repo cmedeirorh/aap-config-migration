@@ -22,7 +22,8 @@
   ansible.builtin.copy:
     content: "{{ item.value | to_nice_json }}"
     dest: "{{ aap_migration_export_dir }}/{{ item.key }}.json"
-  loop: "{{ _exported_assets | dict2items | rejectattr('key', 'in', ['changed', 'failed']) | list }}"
+  # Point directly to the 'assets' dictionary inside the registered variable
+  loop: "{{ _exported_assets.assets | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
   delegate_to: localhost
