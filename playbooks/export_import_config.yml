@@ -17,7 +17,7 @@
 
     - name: Step 2 - Import to AAP 2.6
       ansible.builtin.include_role:
-        name: aap_migration
+        name: roles/aap_migration
       vars:
         aap_action: 'import'
         aap_host: "https://aap26.example.com"
