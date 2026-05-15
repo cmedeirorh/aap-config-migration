@@ -23,6 +23,7 @@ fi
 
 INPUT_DIR="/aap_exports"
 LOG_FILE="/aap_exports/aap_import.log"
+export AWXKIT_API_BASE_PATH='/api/controller/'
 
 # The strict dependency order for importing assets
 IMPORT_ORDER=(
