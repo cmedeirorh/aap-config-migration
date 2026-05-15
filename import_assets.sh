@@ -23,7 +23,6 @@ fi
 
 INPUT_DIR="/aap_exports"
 LOG_FILE="/aap_exports/aap_import.log"
-export AWXKIT_API_BASE_PATH='/api/controller/'
 
 # The strict dependency order for importing assets
 IMPORT_ORDER=(
@@ -51,6 +50,7 @@ echo "Verbose logs are being written to: ${LOG_FILE}"
 echo "------------------------------------------------"
 
 # Loop through each asset type in the required dependency order
+export AWXKIT_API_BASE_PATH='/api/controller/'
 for item in "${IMPORT_ORDER[@]}"; do
     FILE_PATH="${INPUT_DIR}/${item}.json"
     
