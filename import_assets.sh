@@ -1,13 +1,26 @@
 #!/bin/bash
 
-# ==========================================
-# AAP / AWX Asset Import Script (With Logging)
-# ==========================================
+echo "=========================================="
+echo "  AAP Import Configuration"
+echo "=========================================="
 
-# Connection Configuration
-AWX_HOST="https://aap.example.com"
-AWX_USER="admin"
-AWX_PASS="PASS" 
+# Prompt for variables with defaults
+read -p "Enter AAP Host URL [https://aap.example.com]: " AAP_HOST
+AAP_HOST=${AAP_HOST:-https://aap.example.com}
+
+read -p "Enter AAP Username [admin]: " AAP_USER
+AAP_USER=${AAP_USER:-admin}
+
+# Use -s to hide the password input
+read -s -p "Enter AAP Password: " AAP_PASS
+echo "" # Print a newline after silent input
+
+# Fail fast if no password is provided
+if [ -z "$AAP_PASS" ]; then
+    echo "Error: Password cannot be empty. Exiting."
+    exit 1
+fi
+
 INPUT_DIR="/aap_exports"
 LOG_FILE="/aap_exports/aap_import.log"
 
@@ -31,7 +44,7 @@ IMPORT_ORDER=(
 # Initialize the log file with a timestamp
 echo "=== AAP Import Log : $(date) ===" > "${LOG_FILE}"
 
-echo "Starting asset import to ${AWX_HOST}..."
+echo "Starting asset import to ${AAP_HOST}..."
 echo "Reading files from ${INPUT_DIR}/"
 echo "Verbose logs are being written to: ${LOG_FILE}"
 echo "------------------------------------------------"
@@ -51,9 +64,9 @@ for item in "${IMPORT_ORDER[@]}"; do
         
         # Execute the import and append both stdout and stderr to the log file
         AWXKIT_API_BASE_PATH='/api/controller/'; awx import \
-            --conf.host "${AWX_HOST}" \
-            --conf.user "${AWX_USER}" \
-            --conf.password "${AWX_PASS}" \
+            --conf.host "${AAP_HOST}" \
+            --conf.user "${AAP_USER}" \
+            --conf.password "${AAP_PASS}" \
             -k < "${FILE_PATH}" >> "${LOG_FILE}" 2>&1
             
         # Check the exit status of the awx command
