@@ -1,0 +1,33 @@
+---
+- name: Execute AAP Migration
+  hosts: localhost
+  gather_facts: false
+  vars:
+    aap_migration_action: 'all'
+    aap_migration_source_host: "https://aap24.yourdomain.com"
+    aap_migration_source_username: "admin"
+    aap_migration_source_password: "YourAAP24Password"
+    aap_migration_dest_host: "https://aap26.yourdomain.com"
+    aap_migration_dest_username: "admin"
+    aap_migration_dest_password: "YourAAP26Password"
+    aap_migration_validate_certs: false
+    aap_migration_export_dir: "./aap_exports"
+    aap_migration_assets:
+      projects: 'all'
+      job_templates: 'all'
+      users: 'all'
+
+  tasks:
+    - name: Run the AAP migration role (Export Only)
+      ansible.builtin.include_role:
+        name: aap_migration
+      vars:
+        aap_migration_action: 'export'
+        aap_migration_source_password: "MySecurePassword"
+        
+    - name: Run the AAP migration role (Import Only)
+      ansible.builtin.include_role:
+        name: aap_migration
+      vars:
+        aap_migration_action: 'import'
+        aap_migration_dest_password: "MyNewClusterPassword"

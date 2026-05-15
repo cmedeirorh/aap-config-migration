@@ -1,15 +1,36 @@
 ---
-# Action to perform: 'export' or 'import'
-aap_action: 'export'
+# roles/aap_migration/defaults/main.yml
 
-# The path to store the exported JSON/YAML data
-export_dir: "./aap_exports"
+# ---------------------------------------------------------
+# Action Control ('all', 'export', or 'import')
+# ---------------------------------------------------------
+aap_migration_action: 'all'
 
-# AAP Connection Variables (Override these at playbook runtime)
-aap_host: ""
-aap_username: ""
-aap_password: ""
-aap_validate_certs: false
+# ---------------------------------------------------------
+# Source AAP Details (Used during Export)
+# ---------------------------------------------------------
+aap_migration_source_host: "https://aap24.yourdomain.com"
+aap_migration_source_username: "admin"
+aap_migration_source_password: "YourAAP24Password"
 
-# Export Settings
-aap_export_all: true
+# ---------------------------------------------------------
+# Destination AAP Details (Used during Import)
+# ---------------------------------------------------------
+aap_migration_dest_host: "https://aap26.yourdomain.com"
+aap_migration_dest_username: "admin"
+aap_migration_dest_password: "YourAAP26Password"
+
+# ---------------------------------------------------------
+# General Settings
+# ---------------------------------------------------------
+aap_migration_validate_certs: false
+aap_migration_export_dir: "./aap_exports"
+
+# ---------------------------------------------------------
+# Asset Selection
+# ---------------------------------------------------------
+aap_migration_assets:
+  projects: 'all'
+  job_templates:
+    - "Deploy Web Application"
+  users: 'all'

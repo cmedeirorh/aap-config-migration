@@ -1,29 +1,30 @@
 ---
-- name: Export ALL configuration from Source AAP (2.4 or later)
+# roles/aap_migration/tasks/export.yml
+
+- name: "AAP Source | Export SELECTIVE configuration assets"
   ansible.controller.export:
-    controller_host: "{{ aap_host }}"
-    controller_username: "{{ aap_username }}"
-    controller_password: "{{ aap_password }}"
-    validate_certs: "{{ aap_validate_certs }}"
-    all: "{{ aap_export_all }}"
-  register: exported_assets
+    controller_host: "{{ aap_migration_source_host }}"
+    controller_username: "{{ aap_migration_source_username }}"
+    controller_password: "{{ aap_migration_source_password }}"
+    validate_certs: "{{ aap_migration_validate_certs }}"
+  args: "{{ aap_migration_assets }}"
+  register: _exported_assets
+
+- name: "Local | Ensure export directory exists"
+  ansible.builtin.file:
+    path: "{{ aap_migration_export_dir }}"
+    state: directory
+    mode: '0755'
   delegate_to: localhost
   run_once: true
 
-- name: "Ensure export directory exists"
-  ansible.builtin.file:
-    path: "{{ export_dir }}"
-    state: directory
-    mode: '0755'
-        
-- name: "Save each asset type to a separate file"
+- name: "Local | Save each selected asset type to a separate file"
   ansible.builtin.copy:
     content: "{{ item.value | to_nice_json }}"
-    dest: "{{ export_dir }}/{{ item.key }}.json"
-  loop: "{{ exported_assets | dict2items | rejectattr('key', 'in', ['changed', 'failed']) | list }}"
+    dest: "{{ aap_migration_export_dir }}/{{ item.key }}.json"
+  # Point directly to the 'assets' dictionary inside the registered variable
+  loop: "{{ _exported_assets.assets | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
-
-- name: Export completed
-  ansible.builtin.debug:
-    msg: "Successfully exported AAP configuration to {{ aap_export_file_path }}."
+  delegate_to: localhost
+  run_once: true
