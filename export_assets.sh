@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "=========================================="
-echo "  AAP Import Configuration"
+echo "  AAP Export Configuration"
 echo "=========================================="
 
 # Prompt for variables with defaults
