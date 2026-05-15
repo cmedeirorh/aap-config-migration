@@ -8,7 +8,7 @@
 AWX_HOST="https://aap.example.com"
 AWX_USER="admin"
 AWX_PASS="PASS" # Note: For better security, consider passing this via an environment variable
-OUTPUT_DIR="./aap_exports"
+OUTPUT_DIR="/aap_exports"
 
 # List of standard AWX/AAP assets to export
 # Add or remove items from this array as needed for your specific environment
