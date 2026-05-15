@@ -1,16 +1,29 @@
 #!/bin/bash
 
-# ==========================================
-# AAP / AWX Asset Export Script
-# ==========================================
+echo "=========================================="
+echo "  AAP Import Configuration"
+echo "=========================================="
 
-# Connection Configuration
-AWX_HOST="https://aap.example.com"
-AWX_USER="admin"
-AWX_PASS="PASS" # Note: For better security, consider passing this via an environment variable
+# Prompt for variables with defaults
+read -p "Enter AAP Host URL [https://aap.example.com]: " AAP_HOST
+AAP_HOST=${AAP_HOST:-https://aap.example.com}
+
+read -p "Enter AAP Username [admin]: " AAP_USER
+AAP_USER=${AAP_USER:-admin}
+
+# Use -s to hide the password input
+read -s -p "Enter AAP Password: " AAP_PASS
+echo "" # Print a newline after silent input
+
+# Fail fast if no password is provided
+if [ -z "$AAP_PASS" ]; then
+    echo "Error: Password cannot be empty. Exiting."
+    exit 1
+fi
+
 OUTPUT_DIR="/aap_exports"
 
-# List of standard AWX/AAP assets to export
+# List of standard AAP assets to export
 # Add or remove items from this array as needed for your specific environment
 ASSETS=(
     "organizations"
@@ -31,7 +44,7 @@ ASSETS=(
 # Create the output directory if it doesn't already exist
 mkdir -p "${OUTPUT_DIR}"
 
-echo "Starting asset export from ${AWX_HOST}..."
+echo "Starting asset export from ${AAP_HOST}..."
 echo "------------------------------------------------"
 
 # Loop through each asset type in the array
@@ -40,9 +53,9 @@ for item in "${ASSETS[@]}"; do
     
     # Execute the export command
     awx export --${item} \
-        --conf.host "${AWX_HOST}" \
-        --conf.user "${AWX_USER}" \
-        --conf.password "${AWX_PASS}" \
+        --conf.host "${AAP_HOST}" \
+        --conf.user "${AAP_USER}" \
+        --conf.password "${AAP_PASS}" \
         -k > "${OUTPUT_DIR}/${item}.json" 2>/dev/null
         
     # Check the exit status of the awx command
