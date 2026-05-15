@@ -2,7 +2,7 @@
 ## Using the bash scripts within a container:
 ### Create a temporary container and mount a volume for the "/aap_exports" folder:
 ```
-podman run --rm -it --userns=keep-id -v /home/USER/exports:/aap_exports:Z aap-migration:latest
+podman run --rm -it --userns=keep-id -v /home/USER/exports:/aap_exports:Z,U aap-migration:latest
 ```
 
 ### Once inside the container, run the export/import scripts:
