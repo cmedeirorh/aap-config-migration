@@ -8,8 +8,8 @@
 AWX_HOST="https://aap.example.com"
 AWX_USER="admin"
 AWX_PASS="PASS" 
-INPUT_DIR="./aap_exports"
-LOG_FILE="./aap_import.log"
+INPUT_DIR="/aap_exports"
+LOG_FILE="/aap_exports/aap_import.log"
 
 # The strict dependency order for importing assets
 IMPORT_ORDER=(
